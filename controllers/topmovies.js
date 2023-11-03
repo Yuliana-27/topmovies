@@ -1,77 +1,127 @@
 const {request, reponse, response} = require('express');
-const usersModel = require('../models/users');
+const movieModel = require('../models/topmovies');
 const pool = require('../DB');
 
+//1//
+const listMovie = async(req = request, res = response)  => {
+let conn;
+try {
+    conn = await pool.getConnection();
 
-//Nuevo EndPoint 3//
-const addUser=async(req = request, res = response) => {
-    const {
-        Rank,
-        Movie_Title,
-        Year,
-        Score,
-        Director,
-        Cast
-    } = req.body;
+    const movie = await conn.query(movieModel.getAll, (err) => {
+        if (err) {
+            throw err;
+            
+        }
+    })    
+    res.json(movie)
+} 
+catch (error) {
+    console.log(error);
+    res.status(500).json(error);
 
-    if (!Rank || !Movie_Title || !Year || !Score || !Director || !Cast) {
-        res.status(400).json({msg: 'MISSING INFORMATION'});
+} finally{
+    if(conn)
+    {conn.end();}
+}
+}
+
+//2//
+const listMovieByID = async(req = request, res = response)  => {
+    const {id}=req.params;
+    let conn; 
+
+    if (isNaN(Rank)) {   //cuando no es un número//
+        res.status(400).json({msg: `THE ID - IS INVALID`});    //mostrata este mensaje cuando se tecleé un carácter en vez de un munero// 
         return;
+        
     }
-
-    const user = [
-        Rank,
-        Movie_Title,
-        Year,
-        Score,
-        Director,
-        Cast
-    ]
-    let conn;
-
+    
     try {
         conn = await pool.getConnection();
+    
+        const [user] = await conn.query(movieModel.getMovieByID, [id], (err) => {    //consulta de los registro en nuestra base de datos//
+            if (err) {
+                throw err;
+                
+            }
+        })
 
-        const [usernameExists] = await conn.query(usersModel.getByUsername, [username], (err) => {
-            if (err) throw err;
-            })
-            if (usernameExists) {
-                res.status(409).json({msg: 'Username ${username} already exists'});
-                return;
-               }
+        if (!user) {
+            res.status(404).json({msg: `USER WITH ID ${id} NOT FOUND`});     //mostrata este mensaje cuando se tecleé un numero en vez de un carácter// 
+            return;
+        }
 
-        const [emailExists] = await conn.query(usersModel.getByEmail, [email], (err) => {
-              if (err) throw err;
-             })
-              if (emailExists) {
-                  res.status(409).json({msg: 'Email ${email} already exists'});
-                 return;
-                   }
-
-
-
-        const userAdded = await conn.query(usersModel.addRow, [...user], (err) => {
-            if (err) throw err;
-            })
-            if (userAdded.affecteRows === 0){
-                throw new Error('User not added')
-            }                                                   
-            res.json({msg: 'USER ADDED SECCESFULLY'});        
+        res.json(user);
     } catch (error) {
         console.log(error);
         res.status(500).json(error);
-        return;
-    }finally{
-        
-        if(conn)conn.end();
-        
+    
+    } finally{
+        if(conn)
+        {conn.end();}
     }
     }
 
+
+    //Nuevo EndPoint 3//
+    const addMovie = async(req = request, res = response) => {
+        const {
+                Rank,
+                Movie_Title,
+                Year,
+                Score,
+                Director
+                
+        } = req.body;
+
+        if (!Rank || !Movie_Title || !Year || !Score || !Director ) {
+            res.status(400).json({msg: 'MISSING INFORMATION'});
+            return;
+        }
+
+        const user = [
+                Rank,
+                Movie_Title,
+                Year,
+                Score,
+                Director
+                ]
+        let conn;
+
+        try {
+            conn = await pool.getConnection();
+
+            const [Movie_TitleExists] = await conn.query(movieModel.getByMovie_Title, [Movie_Title], (err) => {
+                if (err) throw err;
+                })
+                if (Movie_TitleExists) {
+                    res.status(409).json({msg: 'Movie title ${Movie_Title} already exists'});
+                    return;
+                   }
+
+
+            const Movie_TitleAdded = await conn.query(movieModel.addMovie, [...Movie_Title], (err) => {
+                if (err) throw err;
+                })
+                if (Movie_TitleAdded.affecteRows === 0){
+                    throw new Error('Movie_Title not added')
+                }                                                   
+                res.json({msg: 'USER ADDED SECCESFULLY'});        
+        } catch (error) {
+            console.log(error);
+            res.status(500).json(error);
+            return;
+        }finally{
+            
+            if(conn)conn.end();
+            
+        }
+        }
 
 
         //Nuevo EndPoint 4 Modificar o Actualizar un registro ya registrado en nuestra base de datos//
-        const updateUser = async (req = request, res = response) => {
+        const updateMovie = async (req = request, res = response) => {
             let conn;
         
             const {
@@ -79,27 +129,26 @@ const addUser=async(req = request, res = response) => {
                 Movie_Title,
                 Year,
                 Score,
-                Director,
-                Cast
+                Director
+                
             } = req.body;
 
             const { id } = req.params;
 
-            let userNewData = [
+            let movieNewData = [
                 Rank,
                 Movie_Title,
                 Year,
                 Score,
-                Director,
-                Cast
+                Director
             ];
         
             try {
                 conn = await pool.getConnection();
         
         const [userExists] = await conn.query
-        (usersModel.getByID, 
-            [id], 
+        (movieModel.getByRank, 
+            [Rank], 
             (err) => {
             if (err) throw err;
         });
@@ -168,9 +217,9 @@ const addUser=async(req = request, res = response) => {
 
 
 //endpoint 5//para eleminar  un usuario
-        const deleteUser = async(req = request, res = response) => {
+        const deleteMovie = async(req = request, res = response) => {
             let conn;
-            const {id} = req.params; 
+            const {Rank} = req.params; 
 
 
            try {
@@ -178,8 +227,8 @@ const addUser=async(req = request, res = response) => {
             conn = await pool.getConnection();
 
             const [userExists] = await conn.query
-            (usersModel.getByID, 
-                [id], 
+            (movieModel.getByRank, 
+                [Rank], 
                 (err) => {
                 if (err) throw err;
             });
@@ -191,8 +240,8 @@ const addUser=async(req = request, res = response) => {
             }
 
             const userDeleted = await conn.query(
-                usersModel.deleteRow,
-                [id],
+                movieModel.deleteMovie,
+                [Rank],
                 (err) => {
                     if (err) throw err;
                 }
@@ -214,62 +263,13 @@ const addUser=async(req = request, res = response) => {
         }
             
         }
-
-//endpoint 6 //
-        const signInUser = async (req = request, res = response) => {
-            let conn;
-
-            const {username, password} = req.body;
-
-            conn = await pool.getConnection();
-
-
-            try {
-                if(!username || !password){
-                    res.status(400).json({msg: 'YOU NEED MUST SEND USERNAME AND PASSWORD'});
-                    return;
-    
-                }
-    
-                const [user]= await conn.query(usersModel.getByUsername,
-                    [username],
-                    (err) =>{
-                        if(err)throw err;
-                    });
-    
-                    if (!user) {
-                        res.status(400).json({msg: `WRONG USERNAME OR PASSWORD`});
-                        return;
-                        
-                    }
-    
-                    const passwordOK = await bcrypt.compare(password, user.password);
-
-                    if (!passwordOK) {
-                        res.status(400).json({msg: `WRONG USERNAME OR PASSWORD`});
-                        return;  
-                    }
-
-                    delete(user.password);
-                    delete(user.create_at);
-                    delete(user.updated_at);
-
-                    res.json(user);
-            } catch (error) {
-                console.log(error);
-                res.status(500).json(error);
-
-            }finally{
-                if(conn)conn.end();
-            }
-        }
-             
+   
         
     module.exports = {
-        listUsers,
-        listUserByID,
-        addUser,
-        updateUser,
-        deleteUser,
-        signInUser,
+        listMovie,
+        listMovieByID,
+        addMovie,
+        updateMovie,
+        deleteMovie,
+        
      }
