@@ -1,4 +1,4 @@
-const netflixModel = {
+const movieModel = {
     getAll: `
        SELECT 
              *
@@ -21,11 +21,11 @@ const netflixModel = {
         Movie_Title,
         Year,
         Score,
-        Director,
-        Cast
+        Director
+       
       
     )VALUES(
-       ?, ?, ?, ?, ?, ?
+       ?, ?, ?, ?, ?
     )
     `,
     
@@ -36,8 +36,8 @@ const netflixModel = {
     Movie_Title = ?,
     Year = ?,
     Score = ?,
-    Director = ?,
-    Cast = ?
+    Director = ?
+   
     
     WHERE
        Rank=?

@@ -2,7 +2,7 @@ const express = require('express')
 const cors =require(`cors`);
 require(`dotenv`).config();
 
-const usersRouter = require('./routes/topmovies')
+const movieRouter = require('./routes/topmovies')
 
 
 
@@ -14,7 +14,7 @@ class Server  {
 
          //paths
          this.basePath = '/api/v1';
-         this.usersPath =  `${this.basePath}/users`;
+         this.moviePath =  `${this.basePath}/movie`;
 
          this.middlewares();
          this.routes();
@@ -28,7 +28,7 @@ class Server  {
     }
 
     routes(){
-        this.app.use(this.usersPath, usersRouter);
+        this.app.use(this.moviePath, movieRouter);
 
     }
 
