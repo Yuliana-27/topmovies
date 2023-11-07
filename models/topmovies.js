@@ -14,6 +14,15 @@ const movieModel = {
                 Rank =?
     `,
 
+    getByMovie_Title:`
+    SELECT 
+             *
+          FROM
+          movie
+            WHERE
+                Movie_Title =?
+    `,
+
     addmovie: `
     INSERT INTO 
     movie(

@@ -1,4 +1,4 @@
-const {request, reponse, response} = require('express');
+const {request, response} = require('express');
 const movieModel = require('../models/topmovies');
 const pool = require('../DB');
 
@@ -40,18 +40,18 @@ const listMovieByID = async(req = request, res = response)  => {
     try {
         conn = await pool.getConnection();
     
-        const [movies] = await conn.query(movieModel.getMovieByID, [Rank], (err) => {    //consulta de los registro en nuestra base de datos//
+        const [movie] = await conn.query(movieModel.getByRank, [Rank], (err) => {    //consulta de los registro en nuestra base de datos//
             if (err) {
                 throw err;
                 
             }
         })
-        if (!movies) {
+        if (!movie) {
             res.status(404).json({msg: `USER WITH ID ${Rank} NOT FOUND`});     //mostrata este mensaje cuando se tecleé un numero en vez de un carácter// 
             return;
         }
 
-        res.json(movies);
+        res.json(movie);
     } catch (error) {
         console.log(error);
         res.status(500).json(error);
@@ -78,14 +78,14 @@ const listMovieByID = async(req = request, res = response)  => {
             res.status(400).json({msg: 'MISSING INFORMATION'});
             return;
         }
+        const movie = [
+            Rank,
+            Movie_Title,
+            Year,
+            Score,
+            Director
+            ]
 
-        const movies = [
-                Rank,
-                Movie_Title,
-                Year,
-                Score,
-                Director
-                ]
         let conn;
 
         try {
@@ -100,7 +100,7 @@ const listMovieByID = async(req = request, res = response)  => {
                    }
 
 
-            const Movie_TitleAdded = await conn.query(movieModel.addMovie, [...Movie_Title], (err) => {
+            const Movie_TitleAdded = await conn.query(movieModel.addmovie, [...Movie_Title], (err) => {
                 if (err) throw err;
                 })
                 if (Movie_TitleAdded.affecteRows === 0){
@@ -144,14 +144,14 @@ const listMovieByID = async(req = request, res = response)  => {
             try {
                 conn = await pool.getConnection();
         
-        const [moviesExists] = await conn.query
+        const [movieExists] = await conn.query
         (movieModel.getByRank, 
             [Rank], 
             (err) => {
             if (err) throw err;
         });
 
-        if (!moviesExists || moviesExists.is_active ===0){
+        if (!movieExists || movieExists.is_active ===0){
             res.status(409).json({msg: `User with ID ${Rank} not found`});
                  return;
         }
@@ -165,21 +165,21 @@ const listMovieByID = async(req = request, res = response)  => {
                }
 
                 const moviesOldData = [
-                moviesExists.Movie_Title,
-                moviesExists.Year,
-                moviesExists.Score,
-                moviesExists.Director,
+                movieExists.Movie_Title,
+                movieExists.Year,
+                movieExists.Score,
+                movieExists.Director,
            
               ];
 
-              moviesNewData.forEach((moviesData, index) =>{
-                if (!moviesData){
-                    moviesNewData[index] = moviesOldData[index];
+              movieNewData.forEach((movieData, index) =>{
+                if (!movieData){
+                    movieNewData[index] = moviesOldData[index];
                 }
               })
                    const moviesUpdated = await conn.query(
                     movieModel.updateRow,
-                    [...moviesNewData, id],
+                    [...movieNewData, ],
                     (err) =>{
                         if (err) throw err;
                     }
@@ -213,28 +213,28 @@ const listMovieByID = async(req = request, res = response)  => {
 
             conn = await pool.getConnection();
 
-            const [moviesExists] = await conn.query
+            const [movieExists] = await conn.query
             (movieModel.getByRank, 
                 [Rank], 
                 (err) => {
                 if (err) throw err;
             });
 
-            if (!moviesExists || moviesExists.is_active ===0){
+            if (!movieExists || movieExists.is_active ===0){
                 res.status(409).json({msg: `User with ID ${Rank} not found`});
                      return;
 
             }
 
-            const moviesDeleted = await conn.query(
-                movieModel.deleteMovie,
+            const movieDeleted = await conn.query(
+                movieModel.deletemovie,
                 [Rank],
                 (err) => {
                     if (err) throw err;
                 }
             );
             
-            if (moviesDeleted.affecteRows === 0){
+            if (movieDeleted.affecteRows === 0){
                 throw new Error('User not deleted');
 
             }
@@ -244,7 +244,7 @@ const listMovieByID = async(req = request, res = response)  => {
             console.log(error);
             res.status(500).json(error);
         } finally{
-            if(conn) (await conn).end();
+            if (conn) conn.end();
 
 
         }
