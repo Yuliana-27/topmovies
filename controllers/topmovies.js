@@ -100,7 +100,7 @@ const listMovieByID = async(req = request, res = response)  => {
                    }
 
 
-            const Movie_TitleAdded = await conn.query(movieModel.addmovie, [...Movie_Title], (err) => {
+            const Movie_TitleAdded = await conn.query(movieModel.addmovie, [...movie], (err) => {
                 if (err) throw err;
                 })
                 if (Movie_TitleAdded.affecteRows === 0){
