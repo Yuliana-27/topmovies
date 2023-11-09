@@ -39,9 +39,9 @@ const movieModel = {
     `,
     
     updatemovie: `
-    UPDATE  movie
+    UPDATE  
+       movie
     SET 
-    Rank = ?,
     Movie_Title = ?,
     Year = ?,
     Score = ?,

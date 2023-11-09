@@ -131,10 +131,9 @@ const listMovieByID = async(req = request, res = response)  => {
                 
             } = req.body;
 
-            const { Rank } = req.params;
+            const {Rank} = req.params;
 
             let movieNewData = [
-                Rank,
                 Movie_Title,
                 Year,
                 Score,
@@ -160,7 +159,7 @@ const listMovieByID = async(req = request, res = response)  => {
             if (err) throw err;
             })
             if (Movie_TitleExists) {
-                res.status(409).json({msg: 'Movie_Title ${Movie_Title} already exists'});
+                res.status(409).json({msg: 'Movie_Title already exists'});
                 return;
                }
 
@@ -177,15 +176,15 @@ const listMovieByID = async(req = request, res = response)  => {
                     movieNewData[index] = moviesOldData[index];
                 }
               })
-                   const moviesUpdated = await conn.query(
-                    movieModel.updateRow,
-                    [...movieNewData, ],
+                   const updatemovie = await conn.query(
+                    movieModel.updatemovie,
+                    [...movieNewData, Rank],
                     (err) =>{
                         if (err) throw err;
                     }
                    )
 
-         if (moviesUpdated.affecteRows === 0){
+         if (updatemovie.affecteRows === 0){
            throw new Error('User not added')
                 } 
 
