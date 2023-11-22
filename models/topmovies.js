@@ -59,13 +59,7 @@ const movieModel = {
        WHERE
            Rank =?
     
-    
     `,
-    
-    
-    
     }
-    
-    
     module.exports = movieModel;
     

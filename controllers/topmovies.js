@@ -131,7 +131,7 @@ const listMovieByID = async(req = request, res = response)  => {
                 
             } = req.body;
 
-            const {Rank} = req.params;
+            const { Rank} = req.params;
 
             let movieNewData = [
                 Movie_Title,
